@@ -25,30 +25,98 @@ const ALLOWED_FILE_TYPES = [
   'application/pdf',
   'image/jpeg',
   'image/png',
-  'image/jpg',
-  'application/dwg',
-  'application/step',
-  'application/stp',
-  'model/step',
-  'application/x-step',
-  'application/octet-stream' // Some CAD files might be detected as this
+  'image/jpg'
 ];
+
+const ALLOWED_CAD_EXTENSIONS = ['.step', '.stp', '.dwg', '.dxf', '.igs', '.iges'];
+const DANGEROUS_EXTENSIONS = ['.exe', '.bat', '.cmd', '.com', '.pif', '.scr', '.vbs', '.js', '.jar', '.zip', '.rar', '.7z'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-function validateFile(file: File): { valid: boolean; error?: string } {
+// File signature validation (magic numbers)
+const FILE_SIGNATURES = {
+  'PDF': [0x25, 0x50, 0x44, 0x46], // %PDF
+  'JPEG': [0xFF, 0xD8, 0xFF],
+  'PNG': [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A],
+};
+
+function checkFileSignature(buffer: ArrayBuffer, expectedSignature: number[]): boolean {
+  const uint8Array = new Uint8Array(buffer);
+  for (let i = 0; i < expectedSignature.length; i++) {
+    if (uint8Array[i] !== expectedSignature[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+async function validateFile(file: File): Promise<{ valid: boolean; error?: string }> {
   if (file.size > MAX_FILE_SIZE) {
     return { valid: false, error: 'File size exceeds 10MB limit' };
   }
   
-  // Check file extension as fallback
-  const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.dwg', '.step', '.stp'];
-  const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-  
-  if (!ALLOWED_FILE_TYPES.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
-    return { valid: false, error: 'Invalid file type. Allowed: PDF, JPG, PNG, DWG, STEP' };
+  if (file.size === 0) {
+    return { valid: false, error: 'Empty file not allowed' };
   }
   
-  return { valid: true };
+  const fileName = file.name.toLowerCase();
+  const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+  
+  // Strict dangerous file extension check
+  if (DANGEROUS_EXTENSIONS.includes(fileExtension)) {
+    return { valid: false, error: 'Dangerous file type detected' };
+  }
+  
+  // Check for double extensions (e.g., file.pdf.exe)
+  const extensionParts = fileName.split('.');
+  if (extensionParts.length > 2) {
+    for (let i = 1; i < extensionParts.length - 1; i++) {
+      if (DANGEROUS_EXTENSIONS.includes('.' + extensionParts[i])) {
+        return { valid: false, error: 'Suspicious double extension detected' };
+      }
+    }
+  }
+  
+  // Validate known file types with magic number verification
+  if (ALLOWED_FILE_TYPES.includes(file.type)) {
+    const buffer = await file.arrayBuffer();
+    
+    if (file.type === 'application/pdf') {
+      if (!checkFileSignature(buffer, FILE_SIGNATURES.PDF)) {
+        return { valid: false, error: 'Invalid PDF file signature' };
+      }
+    } else if (file.type.startsWith('image/jpeg')) {
+      if (!checkFileSignature(buffer, FILE_SIGNATURES.JPEG)) {
+        return { valid: false, error: 'Invalid JPEG file signature' };
+      }
+    } else if (file.type === 'image/png') {
+      if (!checkFileSignature(buffer, FILE_SIGNATURES.PNG)) {
+        return { valid: false, error: 'Invalid PNG file signature' };
+      }
+    }
+    
+    return { valid: true };
+  }
+  
+  // Allow CAD files by extension only (safer than application/octet-stream)
+  if (ALLOWED_CAD_EXTENSIONS.includes(fileExtension)) {
+    // Additional safety: check file doesn't start with executable signatures
+    const buffer = await file.arrayBuffer();
+    const uint8Array = new Uint8Array(buffer);
+    
+    // Check for PE executable header (Windows executables)
+    if (uint8Array[0] === 0x4D && uint8Array[1] === 0x5A) { // MZ header
+      return { valid: false, error: 'Executable file disguised as CAD file' };
+    }
+    
+    // Check for ELF header (Linux executables)  
+    if (uint8Array[0] === 0x7F && uint8Array[1] === 0x45 && uint8Array[2] === 0x4C && uint8Array[3] === 0x46) {
+      return { valid: false, error: 'Executable file disguised as CAD file' };
+    }
+    
+    return { valid: true };
+  }
+  
+  return { valid: false, error: `File type not allowed. Allowed: PDF, JPG, PNG, STEP, STP, DWG, DXF, IGS, IGES` };
 }
 
 export async function POST(request: Request) {
@@ -77,15 +145,17 @@ export async function POST(request: Request) {
 
     // Validate files if present
     if (file3D && file3D.size > 0) {
-      const validation = validateFile(file3D);
+      const validation = await validateFile(file3D);
       if (!validation.valid) {
+        console.log(`3D file validation failed: ${validation.error}`);
         return NextResponse.json({ error: `3D File: ${validation.error}` }, { status: 400 });
       }
     }
     
     if (file2D && file2D.size > 0) {
-      const validation = validateFile(file2D);
+      const validation = await validateFile(file2D);
       if (!validation.valid) {
+        console.log(`2D file validation failed: ${validation.error}`);
         return NextResponse.json({ error: `2D File: ${validation.error}` }, { status: 400 });
       }
     }
@@ -130,6 +200,7 @@ export async function POST(request: Request) {
     });
 
     const toEmails = process.env.TO_EMAIL!.split(',').map(email => email.trim());
+    console.log(`Sending email to: ${toEmails.join(', ')}`);
 
     const emailData: any = {
       from: process.env.FROM_EMAIL!,
