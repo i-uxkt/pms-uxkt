@@ -38,7 +38,7 @@ export default function SearchBar() {
 
     const debounceTimeout = setTimeout(async () => {
       try {
-        const response = await fetch(`/api/search?term=${query}`);
+        const response = await fetch(`/api/search?term=${encodeURIComponent(query)}`);
         if (response.ok) {
           const data = await response.json();
           setResults(data);
