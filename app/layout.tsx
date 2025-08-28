@@ -6,6 +6,9 @@ import SearchBar from "@/components/SearchBar";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      </head>
       <body>
         <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
           <header className="px-4 lg:px-6 h-16 flex items-center bg-white/80 dark:bg-gray-950/80 backdrop-blur-md shadow-lg border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-50">

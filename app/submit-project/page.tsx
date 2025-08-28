@@ -73,8 +73,8 @@ export default function SubmitProjectPage() {
     
     if (step === 2) {
       // Validate required fields for step 2
-      if (!formData.category?.trim() || !formData.urgency?.trim()) {
-        alert('Please select both Project Category and Urgency Level');
+      if (!formData.material?.trim() || !formData.quantity?.trim()) {
+        alert('Please select material and enter quantity');
         return;
       }
     }
@@ -169,9 +169,9 @@ export default function SubmitProjectPage() {
       case 1:
         return (
           <div key="step1" className="space-y-6">
-            <div className="text-center pb-6 border-b border-gray-200/50 dark:border-gray-700/50">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Project and Contact Information</h2>
-              <p className="text-gray-600 dark:text-gray-400">Let's start with the basics to get your project moving.</p>
+            <div className="text-center pb-4 sm:pb-6 border-b border-gray-200/50 dark:border-gray-700/50">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Project and Contact Information</h2>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Let's start with the basics to get your project moving.</p>
             </div>
             
             <div className="space-y-5">
@@ -235,14 +235,14 @@ export default function SubmitProjectPage() {
       case 2:
         return (
           <div key="step2" className="space-y-6">
-            <div className="text-center pb-6 border-b border-gray-200/50 dark:border-gray-700/50">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Technical Specifications</h2>
-              <p className="text-gray-600 dark:text-gray-400">Upload your files and specify material requirements.</p>
+            <div className="text-center pb-4 sm:pb-6 border-b border-gray-200/50 dark:border-gray-700/50">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Technical Specifications</h2>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Upload your files and specify material requirements.</p>
             </div>
             
             <div className="space-y-6">
               {/* File Upload Section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-3">
                   <label htmlFor="file3D" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                     3D File * <span className="text-red-500">Required</span>
@@ -303,7 +303,7 @@ export default function SubmitProjectPage() {
               </div>
               
               {/* Technical Specs */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label htmlFor="material" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Material *</label>
                   <select 
@@ -340,7 +340,7 @@ export default function SubmitProjectPage() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label htmlFor="surfaceTreatment" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Surface Treatment</label>
                   <select 
@@ -374,7 +374,7 @@ export default function SubmitProjectPage() {
                 </div>
               </div>
             </div>
-            <div className="flex gap-4 pt-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
               <button 
                 type="button"
                 onClick={prevStep} 
@@ -401,13 +401,13 @@ export default function SubmitProjectPage() {
       case 3:
         return (
           <div key="step3" className="space-y-6">
-            <div className="text-center pb-6 border-b border-gray-200/50 dark:border-gray-700/50">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Requirements & Terms</h2>
-              <p className="text-gray-600 dark:text-gray-400">Final details to complete your project submission.</p>
+            <div className="text-center pb-4 sm:pb-6 border-b border-gray-200/50 dark:border-gray-700/50">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Requirements & Terms</h2>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Final details to complete your project submission.</p>
             </div>
             
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label htmlFor="deliveryDate" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Expected Delivery Date</label>
                   <input 
@@ -505,7 +505,7 @@ export default function SubmitProjectPage() {
                 </div>
               </div>
             </div>
-            <div className="flex gap-4 pt-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
               <button 
                 type="button"
                 onClick={prevStep} 
@@ -549,12 +549,12 @@ export default function SubmitProjectPage() {
   const progress = (step / 3) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-950 dark:via-blue-950 dark:to-indigo-950 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-950 dark:via-blue-950 dark:to-indigo-950 py-4 sm:py-8 lg:py-12 px-4 sm:px-6 lg:px-8">
       {/* Background Pattern */}
       <div className="fixed inset-0 bg-grid-slate-200/60 dark:bg-grid-slate-800/40 bg-[size:20px_20px] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
       
       <div className="relative flex items-center justify-center min-h-screen">
-        <div className="max-w-2xl w-full space-y-8 p-12 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20">
+        <div className="max-w-2xl w-full space-y-4 sm:space-y-8 p-4 sm:p-8 lg:p-12 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20">
           {/* Header */}
           <div className="text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 text-sm font-medium mb-6">
@@ -564,10 +564,10 @@ export default function SubmitProjectPage() {
               Project Submission
             </div>
             
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 dark:from-gray-100 dark:via-blue-100 dark:to-indigo-100 bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 dark:from-gray-100 dark:via-blue-100 dark:to-indigo-100 bg-clip-text text-transparent">
               Submit Your Project
             </h1>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
+            <p className="mt-2 sm:mt-4 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
               Connect with our global manufacturing network for precision quotes. Your IP is protected through our vetted supply chain protocols.
             </p>
           </div>
@@ -601,8 +601,8 @@ export default function SubmitProjectPage() {
             </div>
           </div>
           
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="bg-gray-50/50 dark:bg-gray-800/50 rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-8">
+            <div className="bg-gray-50/50 dark:bg-gray-800/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-200/50 dark:border-gray-700/50">
               {renderStep()}
             </div>
             
