@@ -77,6 +77,12 @@ export default function SubmitProjectPage() {
         alert('Please select material and enter quantity');
         return;
       }
+      
+      // Validate 3D file is uploaded
+      if (!formData.file3D) {
+        alert('Please upload a 3D file (required)');
+        return;
+      }
     }
     
     setStep((prev) => prev + 1);

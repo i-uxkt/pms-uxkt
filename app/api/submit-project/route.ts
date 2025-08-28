@@ -93,20 +93,28 @@ export async function POST(request: Request) {
     const attachments = [];
     if (file3D && file3D.size > 0) {
       // Sanitize filename
-      const sanitizedFilename = file3D.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const sanitizedFilename = file3D.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      const fileBuffer = Buffer.from(await file3D.arrayBuffer());
+      console.log(`Processing 3D file: ${sanitizedFilename}, size: ${fileBuffer.length} bytes`);
+      
       attachments.push({
         filename: sanitizedFilename,
-        content: Buffer.from(await file3D.arrayBuffer()),
+        content: fileBuffer
       });
     }
     if (file2D && file2D.size > 0) {
       // Sanitize filename
-      const sanitizedFilename = file2D.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const sanitizedFilename = file2D.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      const fileBuffer = Buffer.from(await file2D.arrayBuffer());
+      console.log(`Processing 2D file: ${sanitizedFilename}, size: ${fileBuffer.length} bytes`);
+      
       attachments.push({
         filename: sanitizedFilename,
-        content: Buffer.from(await file2D.arrayBuffer()),
+        content: fileBuffer
       });
     }
+    
+    console.log(`Total attachments: ${attachments.length}`);
 
     const emailComponent = ProjectSubmitEmail({
       name: validatedData.name,
@@ -123,13 +131,22 @@ export async function POST(request: Request) {
 
     const toEmails = process.env.TO_EMAIL!.split(',').map(email => email.trim());
 
-    const data = await resend.emails.send({
+    const emailData: any = {
       from: process.env.FROM_EMAIL!,
       to: toEmails,
       subject: `New Project Submission: ${validatedData.projectName}`,
       react: emailComponent as any,
-      attachments: attachments,
-    });
+    };
+    
+    // Only include attachments if there are any
+    if (attachments.length > 0) {
+      emailData.attachments = attachments;
+      console.log(`Sending email with ${attachments.length} attachments`);
+    } else {
+      console.log('Sending email without attachments');
+    }
+
+    const data = await resend.emails.send(emailData);
 
     return NextResponse.json({ message: 'Email sent successfully', data });
   } catch (error) {
